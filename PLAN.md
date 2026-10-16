@@ -201,10 +201,10 @@ tests/Feature/
 ## 12. Progress
 
 ### Phase 1 — Setup, design, static pages
-- [ ] Laravel project, Tailwind, Alpine, fonts, `lang/mk`
-- [ ] Layout: navbar (sticky, gold CTA), footer (map, contact, socials)
-- [ ] Pages: home, services, gallery (placeholder), about, contact, privacy
-- [ ] Temporary text logo (Cormorant + gold gradient) until real logo arrives
+- [x] Laravel project, Tailwind, Alpine, fonts, `lang/mk`
+- [x] Layout: navbar (sticky, gold CTA), footer (map, contact, socials)
+- [x] Pages: home, services, gallery (placeholder), about, contact, privacy
+- [x] Temporary text logo (Cormorant + gold gradient) until real logo arrives
 
 ### Phase 2 — Booking
 - [ ] Migrations, models, enum, seeders

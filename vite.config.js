@@ -9,8 +9,26 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                bunny('Cormorant Garamond', {
+                    variable: '--font-cormorant',
+                    weights: [400, 500, 600, 700],
+                    subsets: ['latin', 'cyrillic'],
+                    preload: [{ weight: 600 }],
+                    fallbacks: ['Georgia', 'serif'],
+                }),
+                bunny('Montserrat', {
+                    variable: '--font-montserrat',
+                    weights: [300, 400, 500, 600],
+                    subsets: ['latin', 'cyrillic'],
+                    preload: [{ weight: 400 }],
+                    fallbacks: ['system-ui', 'sans-serif'],
+                }),
+                bunny('Marck Script', {
+                    variable: '--font-marck',
+                    weights: [400],
+                    subsets: ['latin', 'cyrillic'],
+                    preload: false,
+                    fallbacks: ['cursive'],
                 }),
             ],
         }),
