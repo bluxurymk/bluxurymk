@@ -1,6 +1,14 @@
 <?php
 
+use App\Models\Service;
+use Database\Seeders\ServiceSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+
+uses(LazilyRefreshDatabase::class);
+
 test('public pages render with the shared layout', function (string $routeName, string $expectedText) {
+    $this->seed(ServiceSeeder::class);
+
     $this->get(route($routeName))
         ->assertOk()
         ->assertSee($expectedText)
@@ -13,25 +21,39 @@ test('public pages render with the shared layout', function (string $routeName, 
     'about' => ['about', 'Нашиот тим'],
     'contact' => ['contact', 'boban_hair@yahoo.com'],
     'privacy' => ['privacy', 'Вашите права'],
-    'booking placeholder' => ['booking.create', 'Онлајн резервацијата наскоро'],
+    'booking' => ['booking.create', 'Изберете услуга'],
 ]);
 
-test('home page lists every service with a link to its detail page', function () {
+test('home page lists every active service with a link to its detail page', function () {
+    $services = Service::factory()->count(2)->create();
+    $inactive = Service::factory()->inactive()->create();
+
     $response = $this->get(route('home'))->assertOk();
 
-    foreach (config('salon.services') as $slug => $service) {
-        $response->assertSee($service['name'])
-            ->assertSee(route('services.show', $slug));
+    foreach ($services as $service) {
+        $response->assertSee($service->name)
+            ->assertSee(route('services.show', $service));
     }
+
+    $response->assertDontSee($inactive->name);
 });
 
-test('service detail page shows the service', function () {
-    $this->get(route('services.show', 'keratin'))
+test('service detail page shows the service and links to booking it', function () {
+    $service = Service::factory()->create();
+
+    $this->get(route('services.show', $service))
         ->assertOk()
-        ->assertSee('Кератин')
-        ->assertSee('За здрава и сјајна коса');
+        ->assertSee($service->name)
+        ->assertSee($service->subtitle)
+        ->assertSee(route('booking.create', ['service' => $service->slug]), escape: false);
 });
 
 test('unknown service returns not found', function () {
-    $this->get(route('services.show', 'does-not-exist'))->assertNotFound();
+    $this->get('/uslugi/does-not-exist')->assertNotFound();
+});
+
+test('inactive service returns not found', function () {
+    $service = Service::factory()->inactive()->create();
+
+    $this->get(route('services.show', $service))->assertNotFound();
 });

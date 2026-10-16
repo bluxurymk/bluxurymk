@@ -53,5 +53,17 @@
         @case('close')
             <path d="M6 6l12 12M18 6 6 18" />
             @break
+        @case('arrow-left')
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+            @break
+        @case('calendar')
+            <rect x="3.5" y="5" width="17" height="15.5" rx="1.5" /><path d="M3.5 10h17M8 3v4M16 3v4" />
+            @break
+        @case('user')
+            <circle cx="12" cy="8" r="4" /><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" />
+            @break
+        @case('check')
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+            @break
     @endswitch
 </svg>

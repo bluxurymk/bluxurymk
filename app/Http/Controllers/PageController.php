@@ -2,29 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Service;
 use Illuminate\View\View;
 
 class PageController extends Controller
 {
     public function home(): View
     {
-        return view('pages.home', ['services' => $this->serviceList()]);
+        return view('pages.home', ['services' => Service::active()->ordered()->get()]);
     }
 
     public function services(): View
     {
-        return view('pages.services', ['services' => $this->serviceList()]);
+        return view('pages.services', ['services' => Service::active()->ordered()->get()]);
     }
 
-    public function serviceShow(string $slug): View
+    public function serviceShow(Service $service): View
     {
-        $services = $this->serviceList();
-
-        abort_unless(isset($services[$slug]), 404);
+        abort_unless($service->is_active, 404);
 
         return view('pages.service-show', [
-            'service' => $services[$slug],
-            'otherServices' => collect($services)->except($slug)->take(3)->all(),
+            'service' => $service,
+            'otherServices' => Service::active()->ordered()->whereKeyNot($service->id)->limit(3)->get(),
         ]);
     }
 
@@ -46,23 +45,5 @@ class PageController extends Controller
     public function privacy(): View
     {
         return view('pages.privacy');
-    }
-
-    /**
-     * Temporary placeholder until online booking is built in Phase 2.
-     */
-    public function booking(): View
-    {
-        return view('pages.booking-soon');
-    }
-
-    /**
-     * @return array<string, array{slug: string, name: string, subtitle: string, icon: string, duration_min: int, description: string}>
-     */
-    private function serviceList(): array
-    {
-        return collect(config('salon.services'))
-            ->map(fn (array $service, string $slug): array => ['slug' => $slug, ...$service])
-            ->all();
     }
 }

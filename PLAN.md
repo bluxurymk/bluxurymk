@@ -52,7 +52,7 @@ Services (seed data, durations/prices are placeholders, editable in admin):
 
 ## 3. Design
 
-Reference: `public/images/reference/poster.jpg` (the salon's flyer). Match its vibe, do not copy it 1:1.
+Reference: `public/images/reference/poster.png` (the salon's flyer). Match its vibe, do not copy it 1:1.
 
 - **Colors:** black marble (#0E0C0A / #1A1612), gold gradient (#C9A15B → #E8CF95 → #A67C3D), cream (#F5EFE6), warm beige (#E9DFD1)
 - **Fonts (must support Cyrillic):** Cormorant Garamond (headings), Montserrat (body), Marck Script (script accents)
@@ -152,7 +152,7 @@ resources/
     booking/ create, success, manage
     emails/
 public/images/
-  reference/poster.jpg   (design reference only, not shown on site)
+  reference/poster.png   (design reference only, not shown on site)
   logo/                  (logo files)
   salon/                 (placeholder/real photos)
 routes/ web.php, console.php
@@ -207,10 +207,10 @@ tests/Feature/
 - [x] Temporary text logo (Cormorant + gold gradient) until real logo arrives
 
 ### Phase 2 — Booking
-- [ ] Migrations, models, enum, seeders
-- [ ] AvailabilityService + tests
-- [ ] Booking steps UI, success page, manage page
-- [ ] Double-booking protection + test
+- [x] Migrations, models, enum, seeders (services now come from the DB; `settings` and `gallery_images` tables move to Phase 3 with their admin pages; booking rules live in `config/salon.php` → `booking` until then)
+- [x] AvailabilityService + tests
+- [x] Booking steps UI, success page, manage page
+- [x] Double-booking protection + test
 
 ### Phase 3 — Admin (Filament)
 - [ ] Resources: bookings (calendar + list, "Капар примен", cancel, no-show), services, stylists, working hours, blocked slots, gallery (WebP)
