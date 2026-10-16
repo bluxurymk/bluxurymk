@@ -7,6 +7,8 @@ namespace App\Mail;
  */
 class BookingConfirmed extends BookingMail
 {
+    protected bool $includesCalendarEvent = true;
+
     protected function subjectLine(): string
     {
         return __('emails.confirmed.subject');

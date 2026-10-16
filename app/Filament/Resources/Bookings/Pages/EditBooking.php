@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Bookings\Pages;
 
 use App\Filament\Resources\Bookings\BookingActions;
 use App\Filament\Resources\Bookings\BookingResource;
+use App\Jobs\SyncBookingToGoogleCalendar;
 use App\Models\Service;
 use Carbon\CarbonImmutable;
 use Filament\Resources\Pages\EditRecord;
@@ -15,6 +16,11 @@ class EditBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return BookingActions::all();
+    }
+
+    protected function afterSave(): void
+    {
+        SyncBookingToGoogleCalendar::dispatchIfEnabled($this->getRecord());
     }
 
     /**

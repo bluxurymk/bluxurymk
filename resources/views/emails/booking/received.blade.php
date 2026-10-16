@@ -5,6 +5,8 @@
 
 @include('emails.booking.partials.details')
 
+{!! __('emails.add_to_calendar', ['url' => $googleCalendarUrl]) !!}
+
 {!! __('emails.received.deposit', ['amount' => e($amount), 'deadline' => e($deadline)]) !!}
 
 {{ __('emails.received.auto_cancel') }}

@@ -5,6 +5,8 @@
 
 @include('emails.booking.partials.details')
 
+{!! __('emails.add_to_calendar', ['url' => $googleCalendarUrl]) !!}
+
 <x-mail::button :url="$manageUrl">
 {{ __('emails.manage') }}
 </x-mail::button>

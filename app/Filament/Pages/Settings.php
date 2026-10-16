@@ -2,10 +2,12 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\GoogleCalendarService;
 use App\Services\SalonSettings;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -62,6 +64,23 @@ class Settings extends Page
                             ->columnSpanFull(),
                         TextInput::make('socials.instagram')->label('Instagram (линк)')->url()->maxLength(200),
                         TextInput::make('socials.facebook')->label('Facebook (линк)')->url()->maxLength(200),
+                    ]),
+                Section::make('Календар')
+                    ->description('Резервациите со платен капар во календарот на телефонот.')
+                    ->schema([
+                        TextEntry::make('calendar_feed_url')
+                            ->label('Линк за претплата (iPhone / Apple Calendar и други)')
+                            ->state(fn (): ?string => filled(config('salon.calendar_feed_secret'))
+                                ? route('calendar.feed', config('salon.calendar_feed_secret'))
+                                : null)
+                            ->placeholder('Исклучено — поставете CALENDAR_FEED_SECRET во .env')
+                            ->helperText('Приватен линк: не го споделувајте. На iPhone: Поставки → Календар → Сметки → Додај сметка → Друго → Претплатен календар.')
+                            ->copyable(),
+                        TextEntry::make('google_calendar_status')
+                            ->label('Google Calendar')
+                            ->state(fn (GoogleCalendarService $calendar): string => $calendar->isEnabled()
+                                ? 'Вклучено — потврдените термини автоматски се додаваат.'
+                                : 'Исклучено — се вклучува преку GOOGLE_CALENDAR_* во .env.'),
                     ]),
                 Section::make('Резервации')
                     ->columns(2)

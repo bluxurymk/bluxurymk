@@ -25,6 +25,12 @@ return [
 
     'map_query' => 'Dimitar Vlahov, Kumanovo, North Macedonia',
 
+    /*
+    | Secret part of the private iCal feed URL (/kalendar/{secret}.ics) the
+    | salon subscribes to on their phones. Empty disables the feed.
+    */
+    'calendar_feed_secret' => env('CALENDAR_FEED_SECRET'),
+
     'socials' => [
         'instagram' => null,
         'facebook' => null,

@@ -223,9 +223,11 @@ tests/Feature/
 - [x] Queue setup for shared hosting (`queue:work --stop-when-empty` scheduled every minute)
 
 ### Phase 5 — Calendar
-- [ ] .ics attachments + Google link
-- [ ] Google Calendar sync
-- [ ] Private iCal feed
+- [x] .ics attachments + Google link (on BookingReceived and BookingConfirmed)
+- [x] Google Calendar sync (`GoogleCalendarService` uses the REST API with a service-account JWT, no SDK; queued `SyncBookingToGoogleCalendar`)
+- [x] Private iCal feed (`/kalendar/{CALENDAR_FEED_SECRET}.ics`, link shown on the admin Settings page)
+
+Google Calendar setup at launch: create a Google Cloud project → enable the Calendar API → create a service account and a JSON key → save it as `storage/app/private/google-calendar.json` → share the salon's calendar with the service account email ("Make changes to events") → set `GOOGLE_CALENDAR_ENABLED=true` and `GOOGLE_CALENDAR_ID` (the calendar's ID from its settings).
 
 ### Phase 6 — Launch
 - [ ] Real content, logo, photos

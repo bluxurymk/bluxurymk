@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    /*
+    | Optional sync of confirmed bookings to the salon's Google Calendar,
+    | through a service account the calendar is shared with.
+    */
+    'google_calendar' => [
+        'enabled' => (bool) env('GOOGLE_CALENDAR_ENABLED', false),
+        'calendar_id' => env('GOOGLE_CALENDAR_ID'),
+        'credentials' => env('GOOGLE_CALENDAR_CREDENTIALS') ?: storage_path('app/private/google-calendar.json'),
+    ],
+
 ];
