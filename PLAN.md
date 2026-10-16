@@ -230,6 +230,8 @@ tests/Feature/
 Google Calendar setup at launch: create a Google Cloud project → enable the Calendar API → create a service account and a JSON key → save it as `storage/app/private/google-calendar.json` → share the salon's calendar with the service account email ("Make changes to events") → set `GOOGLE_CALENDAR_ENABLED=true` and `GOOGLE_CALENDAR_ID` (the calendar's ID from its settings).
 
 ### Phase 6 — Launch
+Step-by-step: [LAUNCH.md](LAUNCH.md)
+
 - [ ] Real content, logo, photos
 - [ ] Domain + hosting + SSL
 - [ ] Deploy, `.env`, migrations, storage link
