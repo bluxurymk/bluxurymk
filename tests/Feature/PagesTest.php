@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Service;
+use App\Models\Stylist;
 use Database\Seeders\ServiceSeeder;
 
 test('public pages render with the shared layout', function (string $routeName, string $expectedText) {
@@ -53,4 +54,23 @@ test('inactive service returns not found', function () {
     $service = Service::factory()->inactive()->create();
 
     $this->get(route('services.show', $service))->assertNotFound();
+});
+
+test('the about page introduces the active stylists', function () {
+    $stylist = Stylist::factory()->create(['name' => 'Бобан', 'bio' => 'Специјалист за балајаж.', 'photo' => 'stylists/boban.webp']);
+    $inactive = Stylist::factory()->inactive()->create(['name' => 'Поранешен Стилист']);
+
+    $this->get(route('about'))
+        ->assertOk()
+        ->assertSee('Бобан')
+        ->assertSee('Специјалист за балајаж.')
+        ->assertSee($stylist->photoUrl())
+        ->assertDontSee($inactive->name)
+        ->assertDontSee('Наскоро ќе ги претставиме нашите стилисти.');
+});
+
+test('the about page promises the team soon while no stylists are active', function () {
+    $this->get(route('about'))
+        ->assertOk()
+        ->assertSee('Наскоро ќе ги претставиме нашите стилисти.');
 });

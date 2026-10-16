@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
@@ -27,8 +28,13 @@ class Booking extends Model
 
     public const CANCELLED_DEPOSIT_EXPIRED = 'deposit_expired';
 
+    /**
+     * Years a booking is kept after its appointment, as promised in the privacy policy.
+     */
+    public const RETENTION_YEARS = 2;
+
     /** @use HasFactory<BookingFactory> */
-    use HasFactory;
+    use HasFactory, Prunable;
 
     /**
      * Get the attributes that should be cast.
@@ -66,6 +72,16 @@ class Booking extends Model
     public function stylist(): BelongsTo
     {
         return $this->belongsTo(Stylist::class);
+    }
+
+    /**
+     * Bookings past the retention period, deleted daily by `model:prune`.
+     *
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        return static::query()->where('ends_at', '<', now()->subYears(self::RETENTION_YEARS));
     }
 
     /**

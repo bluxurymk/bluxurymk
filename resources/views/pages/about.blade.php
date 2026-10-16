@@ -35,17 +35,23 @@
 
     <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <x-section-title eyebrow="Запознајте нè" title="Нашиот тим">
-            Наскоро ќе ги претставиме нашите стилисти.
+            @if ($stylists->isEmpty())
+                Наскоро ќе ги претставиме нашите стилисти.
+            @endif
         </x-section-title>
-        <div class="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach (range(1, 3) as $index)
-                <div class="flex flex-col items-center gap-4 text-center">
-                    <x-photo-frame alt="Стилист" class="w-48" />
-                    <p class="font-serif text-2xl text-gold-300">Стилист</p>
-                    <p class="text-xs uppercase tracking-[0.2em] text-beige/60">Наскоро</p>
-                </div>
-            @endforeach
-        </div>
+        @if ($stylists->isNotEmpty())
+            <ul class="mt-14 flex flex-wrap justify-center gap-x-10 gap-y-14">
+                @foreach ($stylists as $stylist)
+                    <li class="flex w-64 flex-col items-center gap-4 text-center">
+                        <x-photo-frame :src="$stylist->photoUrl()" :alt="$stylist->name" class="w-48" />
+                        <p class="font-serif text-2xl text-gold-300">{{ $stylist->name }}</p>
+                        @if ($stylist->bio)
+                            <p class="text-sm leading-relaxed text-beige/75">{{ $stylist->bio }}</p>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        @endif
     </section>
 
     <x-cta-band />

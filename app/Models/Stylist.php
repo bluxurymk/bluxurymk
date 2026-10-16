@@ -80,6 +80,11 @@ class Stylist extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function photoUrl(): ?string
+    {
+        return $this->photo ? Storage::disk('public')->url($this->photo) : null;
+    }
+
     #[Scope]
     protected function active(Builder $query): void
     {

@@ -28,10 +28,10 @@ Small changes still needed in the codebase.
 
 - [ ] **Real logo**: replace the temporary text logo in `resources/views/components/logo.blade.php`
 - [ ] **Site photos**: pass real images to the `<x-photo-frame>` placeholders in `pages/home.blade.php`, `pages/about.blade.php` and `pages/service-show.blade.php`
-- [ ] **Team section**: the "Нашиот тим" section on the About page still shows 3 static placeholders; build it from active stylists (name, photo, bio) in the database
-- [ ] **Data retention**: the privacy policy promises bookings are kept at most 2 years after the appointment. Add pruning of old bookings (e.g. `Prunable` on `Booking` plus a scheduled `model:prune`) so that promise is actually enforced
+- [x] **Team section**: the About page lists active stylists (name, photo, bio) from the admin
+- [x] **Data retention**: bookings are deleted 2 years after their appointment (`Booking::RETENTION_YEARS`, daily `model:prune`), as the privacy policy promises
 - [ ] **Privacy page third parties**: once the providers are chosen, name the email provider (Brevo or Resend), the hosting company and, if used, Google Calendar
-- [ ] **Admin 2FA (optional)**: turn on Filament's built-in two-factor login for the admin panel
+- [x] **Admin 2FA**: authenticator-app two-factor login with recovery codes is available. Each admin turns it on under Profile (top-right menu → Profile)
 - [ ] Merge the phase branches into `main` and tag the release
 
 ## 3. Accounts and hosting
@@ -104,7 +104,7 @@ Run these over SSH. Paths assume the app lives in `~/bluxury`; adjust to the hos
     ```
     * * * * * cd ~/bluxury && /path/to/php84 artisan schedule:run >> /dev/null 2>&1
     ```
-    This one entry runs everything: unpaid-booking expiry (every 15 min), reminders (hourly) and the email queue (every minute).
+    This one entry runs everything: unpaid-booking expiry (every 15 min), reminders (hourly), the email queue (every minute) and deleting bookings past the 2-year retention (daily).
 11. [ ] **HTTPS**: issue the certificate (AutoSSL) and turn on cPanel → Domains → **Force HTTPS Redirect**.
 12. [ ] **Fill in the admin** at `https://<domain>/admin`:
     - [ ] Services: real durations and prices, inactive ones switched off
@@ -176,7 +176,7 @@ Use your own email and phone number for these test bookings. Afterwards, cancel 
 - [ ] **Expiry**: set the deposit deadline to 1 hour in Settings, book, and wait about 75 minutes. The booking is auto-cancelled and the email arrives. Restore the deadline afterwards
 - [ ] **Reminder**: a confirmed booking for tomorrow gets the reminder email within the hour
 - [ ] **Gallery**: upload a photo from the phone in the admin; it appears on `/galerija`
-- [ ] Server check: `php artisan schedule:list` lists 3 tasks, and `php artisan queue:failed` is empty
+- [ ] Server check: `php artisan schedule:list` lists 4 tasks, and `php artisan queue:failed` is empty
 - [ ] Error pages do not show debug details (open a URL that does not exist)
 
 ## 8. After launch
@@ -184,5 +184,5 @@ Use your own email and phone number for these test bookings. Afterwards, cancel 
 - [ ] Backups: confirm the host's daily backups include the **database** and `storage/app`, and download a copy monthly
 - [ ] Check `storage/logs/` and `php artisan queue:failed` weekly for the first month
 - [ ] Run `composer audit` and update dependencies regularly; test locally before deploying
-- [ ] Hand-over to the salon: admin login, how to confirm deposits, add days off, and upload photos
+- [ ] Hand-over to the salon: admin login, turning on two-factor login (Profile), how to confirm deposits, add days off, and upload photos
 - [ ] Submit the site to Google Search Console and create a Google Business Profile with the booking link

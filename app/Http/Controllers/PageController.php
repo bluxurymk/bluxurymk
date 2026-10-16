@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GalleryImage;
 use App\Models\Service;
+use App\Models\Stylist;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -35,7 +36,7 @@ class PageController extends Controller
 
     public function about(): View
     {
-        return view('pages.about');
+        return view('pages.about', ['stylists' => Stylist::active()->orderBy('name')->get()]);
     }
 
     public function contact(): View

@@ -76,3 +76,13 @@ test('a deposit confirmed before the expiry run is not cancelled', function () {
         ->and($booking->fresh()->status)->toBe(BookingStatus::Confirmed);
     Mail::assertNotQueued(BookingCancelled::class);
 });
+
+test('bookings are deleted two years after their appointment', function () {
+    $expired = Booking::factory()->at('2024-10-19 10:00')->confirmed()->create();
+    $kept = Booking::factory()->at('2024-10-19 13:00')->confirmed()->create();
+
+    $this->artisan('model:prune', ['--model' => Booking::class])->assertSuccessful();
+
+    expect(Booking::find($expired->id))->toBeNull()
+        ->and(Booking::find($kept->id))->not->toBeNull();
+});

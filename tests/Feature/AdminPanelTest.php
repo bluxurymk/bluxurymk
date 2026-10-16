@@ -25,6 +25,7 @@ test('every admin page loads for staff', function (string $path) {
     'blocked slots' => ['/admin/blocked-slots'],
     'gallery' => ['/admin/gallery-images'],
     'settings' => ['/admin/podesuvanja'],
+    'profile with two-factor setup' => ['/admin/profile'],
 ]);
 
 test('the calendar lists the week bookings and skips cancelled ones', function () {

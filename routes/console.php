@@ -6,6 +6,9 @@ Schedule::command('bookings:expire-unpaid')->everyFifteenMinutes()->withoutOverl
 
 Schedule::command('bookings:send-reminders')->hourly()->withoutOverlapping();
 
+// Deletes bookings older than Booking::RETENTION_YEARS (privacy policy).
+Schedule::command('model:prune')->dailyAt('03:30');
+
 /*
 | Shared hosting has no long-running queue worker: the scheduler (cron, every
 | minute) drains the queue and exits, so queued emails go out within a minute.
