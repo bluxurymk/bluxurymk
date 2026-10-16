@@ -238,7 +238,7 @@ test('a customer can cancel an upcoming booking', function () {
     expect($booking->fresh())
         ->status->toBe(BookingStatus::Cancelled)
         ->cancelled_at->not->toBeNull()
-        ->cancel_reason->toBe('customer');
+        ->cancel_reason->toBe(Booking::CANCELLED_BY_CUSTOMER);
 });
 
 test('a past or already cancelled booking cannot be cancelled', function (Booking $booking) {

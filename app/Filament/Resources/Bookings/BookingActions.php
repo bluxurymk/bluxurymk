@@ -60,7 +60,7 @@ class BookingActions
                     ->maxLength(150),
             ])
             ->action(function (Booking $record, array $data): void {
-                $record->cancel($data['reason'] ?: 'salon');
+                $record->cancel($data['reason'] ?: Booking::CANCELLED_BY_SALON);
 
                 Notification::make()->title('Резервацијата е откажана')->success()->send();
             });

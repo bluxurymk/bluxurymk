@@ -218,9 +218,9 @@ tests/Feature/
 
 ### Phase 4 — Emails & automation
 - Note: status changes live on `Booking` (`confirmDeposit()`, `cancel()`, `markCompleted()`, `markNoShow()`) — hook emails there. Queued jobs and console commands do not run web middleware, so call `SalonSettings::applyToConfig()` before using salon config there.
-- [ ] All mailables + branded template
-- [ ] expire-unpaid + send-reminders commands + tests
-- [ ] Queue setup for shared hosting
+- [x] All mailables + branded template (`bluxury` Markdown theme; sent from `SendBookingEmails` listener on `BookingWasPlaced` / `DepositWasConfirmed` / `BookingWasCancelled`)
+- [x] expire-unpaid + send-reminders commands + tests (deposit reminder goes out halfway through the deposit window = 24h by default)
+- [x] Queue setup for shared hosting (`queue:work --stop-when-empty` scheduled every minute)
 
 ### Phase 5 — Calendar
 - [ ] .ics attachments + Google link

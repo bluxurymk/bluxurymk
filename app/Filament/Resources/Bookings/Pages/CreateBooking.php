@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Bookings\Pages;
 
 use App\Enums\BookingStatus;
+use App\Events\BookingWasPlaced;
 use App\Filament\Resources\Bookings\BookingResource;
 use App\Models\Service;
 use App\Services\BookingService;
@@ -32,6 +33,11 @@ class CreateBooking extends CreateRecord
                 $status,
             ),
         ];
+    }
+
+    protected function afterCreate(): void
+    {
+        BookingWasPlaced::dispatch($this->getRecord(), false);
     }
 
     protected function getRedirectUrl(): string

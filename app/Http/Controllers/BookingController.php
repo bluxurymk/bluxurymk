@@ -110,7 +110,7 @@ class BookingController extends Controller
             return back()->withErrors(['booking' => __('booking.manage.not_cancellable', ['phone' => config('salon.phone')])]);
         }
 
-        $booking->cancel('customer');
+        $booking->cancel(Booking::CANCELLED_BY_CUSTOMER);
 
         return redirect()->route('booking.show', $booking)->with('status', __('booking.manage.cancelled'));
     }

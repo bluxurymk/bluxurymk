@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\BookingStatus;
+use App\Events\BookingWasPlaced;
 use App\Exceptions\SlotUnavailableException;
 use App\Models\Booking;
 use App\Models\Service;
@@ -39,7 +40,7 @@ class BookingService
                 throw new SlotUnavailableException;
             }
 
-            return Booking::create([
+            $booking = Booking::create([
                 'service_id' => $service->id,
                 'stylist_id' => $assignedStylist->id,
                 'customer_name' => $customer['customer_name'],
@@ -48,6 +49,10 @@ class BookingService
                 'note' => $customer['note'] ?? null,
                 ...$this->newBookingAttributes($service, $startsAt, BookingStatus::PendingDeposit),
             ]);
+
+            BookingWasPlaced::dispatch($booking, true);
+
+            return $booking;
         });
     }
 

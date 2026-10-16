@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\BookingStatus;
+use App\Events\BookingWasCancelled;
+use App\Events\DepositWasConfirmed;
 use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -19,6 +21,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class Booking extends Model
 {
+    public const CANCELLED_BY_CUSTOMER = 'customer';
+
+    public const CANCELLED_BY_SALON = 'salon';
+
+    public const CANCELLED_DEPOSIT_EXPIRED = 'deposit_expired';
+
     /** @use HasFactory<BookingFactory> */
     use HasFactory;
 
@@ -85,21 +93,62 @@ class Booking extends Model
         return $this->starts_at->isPast();
     }
 
-    public function confirmDeposit(): void
+    /**
+     * Mark the deposit as paid. Only a booking still waiting for it can be confirmed.
+     */
+    public function confirmDeposit(): bool
     {
-        $this->update([
-            'status' => BookingStatus::Confirmed,
+        $confirmed = $this->transitionFrom([BookingStatus::PendingDeposit], [
+            'status' => BookingStatus::Confirmed->value,
             'deposit_paid_at' => now(),
         ]);
+
+        if ($confirmed) {
+            DepositWasConfirmed::dispatch($this);
+        }
+
+        return $confirmed;
     }
 
-    public function cancel(?string $reason = null): void
+    /**
+     * Cancel an active booking. The reason is one of the CANCELLED_* constants or staff's own text.
+     */
+    public function cancel(string $reason): bool
     {
-        $this->update([
-            'status' => BookingStatus::Cancelled,
+        $cancelled = $this->transitionFrom(BookingStatus::blocking(), [
+            'status' => BookingStatus::Cancelled->value,
             'cancelled_at' => now(),
             'cancel_reason' => $reason,
         ]);
+
+        if ($cancelled) {
+            BookingWasCancelled::dispatch($this);
+        }
+
+        return $cancelled;
+    }
+
+    /**
+     * Cancel the booking if its deposit deadline has passed while it still
+     * waits for the deposit. A deposit confirmed in the meantime wins.
+     */
+    public function expireUnpaidDeposit(): bool
+    {
+        if ($this->deposit_due_at === null || $this->deposit_due_at->isFuture()) {
+            return false;
+        }
+
+        $expired = $this->transitionFrom([BookingStatus::PendingDeposit], [
+            'status' => BookingStatus::Cancelled->value,
+            'cancelled_at' => now(),
+            'cancel_reason' => self::CANCELLED_DEPOSIT_EXPIRED,
+        ]);
+
+        if ($expired) {
+            BookingWasCancelled::dispatch($this);
+        }
+
+        return $expired;
     }
 
     public function markCompleted(): void
@@ -110,5 +159,28 @@ class Booking extends Model
     public function markNoShow(): void
     {
         $this->update(['status' => BookingStatus::NoShow]);
+    }
+
+    /**
+     * Change the status atomically, but only while it is still one of the given
+     * statuses, so the expiry command and staff cannot both act on the same booking.
+     *
+     * @param  list<BookingStatus>  $fromStatuses
+     * @param  array<string, mixed>  $attributes
+     */
+    private function transitionFrom(array $fromStatuses, array $attributes): bool
+    {
+        $updated = static::query()
+            ->whereKey($this->getKey())
+            ->whereIn('status', $fromStatuses)
+            ->update($attributes);
+
+        if ($updated === 0) {
+            return false;
+        }
+
+        $this->refresh();
+
+        return true;
     }
 }
