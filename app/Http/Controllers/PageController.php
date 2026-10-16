@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GalleryImage;
 use App\Models\Service;
 use Illuminate\View\View;
 
@@ -29,7 +30,7 @@ class PageController extends Controller
 
     public function gallery(): View
     {
-        return view('pages.gallery');
+        return view('pages.gallery', ['images' => GalleryImage::visible()->ordered()->get()]);
     }
 
     public function about(): View

@@ -213,10 +213,11 @@ tests/Feature/
 - [x] Double-booking protection + test
 
 ### Phase 3 — Admin (Filament)
-- [ ] Resources: bookings (calendar + list, "Капар примен", cancel, no-show), services, stylists, working hours, blocked slots, gallery (WebP)
-- [ ] Settings page
+- [x] Resources: bookings (calendar + list, "Капар примен", cancel, no-show), services, stylists, working hours, blocked slots, gallery (WebP)
+- [x] Settings page (overrides `config/salon.php` via `SalonSettings` + `ApplySalonSettings` web middleware)
 
 ### Phase 4 — Emails & automation
+- Note: status changes live on `Booking` (`confirmDeposit()`, `cancel()`, `markCompleted()`, `markNoShow()`) — hook emails there. Queued jobs and console commands do not run web middleware, so call `SalonSettings::applyToConfig()` before using salon config there.
 - [ ] All mailables + branded template
 - [ ] expire-unpaid + send-reminders commands + tests
 - [ ] Queue setup for shared hosting

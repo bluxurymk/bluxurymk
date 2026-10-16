@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'photo', 'bio', 'is_active'])]
 class Stylist extends Model
@@ -27,6 +28,21 @@ class Stylist extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::deleted(function (Stylist $stylist): void {
+            if ($stylist->photo) {
+                Storage::disk('public')->delete($stylist->photo);
+            }
+        });
+
+        static::updated(function (Stylist $stylist): void {
+            if ($stylist->wasChanged('photo') && $stylist->getOriginal('photo')) {
+                Storage::disk('public')->delete($stylist->getOriginal('photo'));
+            }
+        });
     }
 
     /**

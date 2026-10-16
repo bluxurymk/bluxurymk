@@ -5,8 +5,8 @@
 | Salon Information
 |--------------------------------------------------------------------------
 |
-| Static salon data used by the public pages. Contact info will move to
-| the settings table and become editable in the admin panel in Phase 3.
+| Defaults for the salon's contact info and booking rules. The admin can
+| override them on the Settings page (see App\Services\SalonSettings).
 | Services live in the database (see ServiceSeeder).
 |
 */
@@ -35,13 +35,14 @@ return [
     | Booking Rules
     |--------------------------------------------------------------------------
     |
-    | Placeholders until the salon confirms them. These move to the settings
-    | table and become editable in the admin panel in Phase 3.
+    | Defaults. The admin can override them on the Settings page (see
+    | App\Services\SalonSettings).
     |
     */
     'booking' => [
         'deposit_amount' => (int) env('BOOKING_DEPOSIT_AMOUNT', 500),
         'deposit_hours' => (int) env('BOOKING_DEPOSIT_HOURS', 48),
+        'reminder_hours' => (int) env('BOOKING_REMINDER_HOURS', 24),
         'buffer_minutes' => (int) env('BOOKING_BUFFER_MINUTES', 15),
         'slot_interval_minutes' => (int) env('BOOKING_SLOT_INTERVAL_MINUTES', 30),
         'min_notice_minutes' => (int) env('BOOKING_MIN_NOTICE_MINUTES', 120),

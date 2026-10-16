@@ -7,13 +7,13 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
+        "@tailwindcss/vite": "^4.3.3",
         "alpinejs": "^3.17.4",
         "concurrently": "^10.0.3",
         "fontaine": "^0.8.2",
         "laravel-vite-plugin": "^3.1",
         "lightningcss-win32-x64-msvc": "^1.33.0",
-        "tailwindcss": "^4.0.0",
+        "tailwindcss": "^4.3.3",
         "vite": "^8.0.0"
     },
     "optionalDependencies": {

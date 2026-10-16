@@ -77,6 +77,22 @@ class Booking extends Model
         return $this->status->blocksSlot() && $this->starts_at->isFuture();
     }
 
+    /**
+     * Whether the appointment time has started, so it can be closed as completed or no-show.
+     */
+    public function hasStarted(): bool
+    {
+        return $this->starts_at->isPast();
+    }
+
+    public function confirmDeposit(): void
+    {
+        $this->update([
+            'status' => BookingStatus::Confirmed,
+            'deposit_paid_at' => now(),
+        ]);
+    }
+
     public function cancel(?string $reason = null): void
     {
         $this->update([
@@ -84,5 +100,15 @@ class Booking extends Model
             'cancelled_at' => now(),
             'cancel_reason' => $reason,
         ]);
+    }
+
+    public function markCompleted(): void
+    {
+        $this->update(['status' => BookingStatus::Completed]);
+    }
+
+    public function markNoShow(): void
+    {
+        $this->update(['status' => BookingStatus::NoShow]);
     }
 }

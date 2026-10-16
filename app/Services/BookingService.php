@@ -39,8 +39,6 @@ class BookingService
                 throw new SlotUnavailableException;
             }
 
-            $now = now()->toImmutable();
-
             return Booking::create([
                 'service_id' => $service->id,
                 'stylist_id' => $assignedStylist->id,
@@ -48,14 +46,44 @@ class BookingService
                 'customer_phone' => $customer['customer_phone'],
                 'customer_email' => $customer['customer_email'],
                 'note' => $customer['note'] ?? null,
-                'starts_at' => $startsAt,
-                'ends_at' => $startsAt->addMinutes($service->duration_min),
-                'status' => BookingStatus::PendingDeposit,
-                'deposit_amount' => config('salon.booking.deposit_amount'),
-                'deposit_due_at' => $now->addHours(config('salon.booking.deposit_hours'))->min($startsAt),
-                'manage_token' => Str::random(48),
-                'consent_at' => $now,
+                ...$this->newBookingAttributes($service, $startsAt, BookingStatus::PendingDeposit),
             ]);
         });
+    }
+
+    /**
+     * System-managed attributes of a new booking: end time, deposit terms, manage token and consent time.
+     *
+     * @return array<string, mixed>
+     */
+    public function newBookingAttributes(Service $service, CarbonImmutable $startsAt, BookingStatus $status): array
+    {
+        $now = now()->toImmutable();
+
+        return [
+            'starts_at' => $startsAt,
+            'ends_at' => $startsAt->addMinutes($service->duration_min),
+            'status' => $status,
+            'deposit_amount' => config('salon.booking.deposit_amount'),
+            'deposit_due_at' => $now->addHours(config('salon.booking.deposit_hours'))->min($startsAt),
+            'deposit_paid_at' => $status === BookingStatus::Confirmed ? $now : null,
+            'manage_token' => Str::random(48),
+            'consent_at' => $now,
+        ];
+    }
+
+    /**
+     * Whether the stylist already has an active booking overlapping the period.
+     * Used for bookings entered by staff, who may book outside working hours.
+     */
+    public function hasConflict(int $stylistId, CarbonImmutable $startsAt, CarbonImmutable $endsAt, ?int $ignoreBookingId = null): bool
+    {
+        return Booking::query()
+            ->blocking()
+            ->where('stylist_id', $stylistId)
+            ->where('starts_at', '<', $endsAt)
+            ->where('ends_at', '>', $startsAt)
+            ->when($ignoreBookingId, fn ($query) => $query->whereKeyNot($ignoreBookingId))
+            ->exists();
     }
 }

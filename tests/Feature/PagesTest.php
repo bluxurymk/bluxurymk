@@ -2,9 +2,6 @@
 
 use App\Models\Service;
 use Database\Seeders\ServiceSeeder;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-
-uses(LazilyRefreshDatabase::class);
 
 test('public pages render with the shared layout', function (string $routeName, string $expectedText) {
     $this->seed(ServiceSeeder::class);

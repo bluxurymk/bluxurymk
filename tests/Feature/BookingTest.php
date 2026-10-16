@@ -7,9 +7,6 @@ use App\Models\Stylist;
 use App\Models\WorkingHour;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-
-uses(LazilyRefreshDatabase::class);
 
 beforeEach(function () {
     config([

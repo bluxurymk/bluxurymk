@@ -2,7 +2,10 @@
 
 namespace App\Enums;
 
-enum BookingStatus: string
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
+enum BookingStatus: string implements HasColor, HasLabel
 {
     case PendingDeposit = 'pending_deposit';
     case Confirmed = 'confirmed';
@@ -28,5 +31,21 @@ enum BookingStatus: string
     public function label(): string
     {
         return __('booking.status.'.$this->value);
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label();
+    }
+
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::PendingDeposit => 'warning',
+            self::Confirmed => 'success',
+            self::Cancelled => 'gray',
+            self::Completed => 'info',
+            self::NoShow => 'danger',
+        };
     }
 }
