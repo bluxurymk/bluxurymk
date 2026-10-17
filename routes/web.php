@@ -17,6 +17,8 @@ Route::controller(PageController::class)->group(function () {
 
 Route::controller(BookingController::class)->group(function () {
     Route::get('/rezerviraj', 'create')->name('booking.create');
+    Route::get('/rezerviraj/denovi', 'dates')->middleware('throttle:60,1')->name('booking.dates');
+    Route::get('/rezerviraj/termini', 'slots')->middleware('throttle:60,1')->name('booking.slots');
     Route::post('/rezerviraj', 'store')->middleware('throttle:10,1')->name('booking.store');
     Route::get('/rezerviraj/uspeshno', 'success')->name('booking.success');
     Route::get('/rezervacija/{booking:manage_token}', 'show')->name('booking.show');

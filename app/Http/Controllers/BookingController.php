@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\SlotUnavailableException;
+use App\Http\Requests\BookingAvailabilityRequest;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use App\Models\Service;
+use App\Models\Stylist;
 use App\Services\AvailabilityService;
 use App\Services\BookingService;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,57 +19,71 @@ use Illuminate\View\View;
 class BookingController extends Controller
 {
     /**
-     * Number of days shown at once in the date step.
-     */
-    private const DAYS_PER_PAGE = 14;
-
-    /**
-     * The booking wizard. Each step is a plain link that adds a query
-     * parameter (service → stylist → date → time), so it works without JS.
+     * The booking page. Steps switch in the browser (Alpine); free days and
+     * times are loaded from the JSON endpoints below. A service can be
+     * preselected with ?service=slug, and after a failed submit the old
+     * input reopens the page at the right step.
      */
     public function create(Request $request, AvailabilityService $availability): View
     {
-        $services = Service::active()->ordered()->get();
-        $service = $services->firstWhere('slug', $request->query('service'));
+        $services = Service::active()
+            ->ordered()
+            ->with(['stylists' => fn ($query) => $query->active()->orderBy('stylists.id')])
+            ->get();
 
-        $stylists = $service ? $availability->stylistsFor($service) : collect();
-        $stylist = $stylists->firstWhere('id', $request->integer('stylist'));
-        $hasChosenStylist = $service !== null
-            && ($stylists->count() === 1 || $stylist !== null || $request->query('stylist') === 'any');
-
-        if ($stylists->count() === 1) {
-            $stylist = null;
-        }
-
-        $dateWindowStart = $this->parseDate($request->query('from')) ?? $availability->firstBookableDate();
-        $dateWindowStart = $dateWindowStart->max($availability->firstBookableDate());
-        $dateWindowEnd = $dateWindowStart->addDays(self::DAYS_PER_PAGE - 1);
-
-        $dates = $hasChosenStylist
-            ? $availability->availableDates($service, $stylist, $dateWindowStart, $dateWindowEnd)
-            : collect();
-
-        $date = $hasChosenStylist ? $this->parseDate($request->query('date')) : null;
-        $slots = $date ? $availability->availableSlots($service, $date, $stylist) : collect();
-        $time = $slots->has($request->query('time')) ? $request->query('time') : null;
+        $locale = app()->getLocale();
+        $firstMonday = CarbonImmutable::parse('2024-01-01')->locale($locale);
 
         return view('booking.create', [
             'services' => $services,
-            'service' => $service,
-            'stylists' => $stylists,
-            'stylist' => $stylist,
-            'hasChosenStylist' => $hasChosenStylist,
-            'stylistParam' => $stylist?->id ?? ($hasChosenStylist ? 'any' : null),
-            'dates' => $dates,
-            'previousWindow' => $dateWindowStart->greaterThan($availability->firstBookableDate())
-                ? $dateWindowStart->subDays(self::DAYS_PER_PAGE)->max($availability->firstBookableDate())
-                : null,
-            'nextWindow' => $dateWindowEnd->lessThan($availability->lastBookableDate())
-                ? $dateWindowEnd->addDay()
-                : null,
-            'date' => $date,
-            'slots' => $slots,
-            'time' => $time,
+            'state' => [
+                'services' => $services->mapWithKeys(fn (Service $service): array => [$service->slug => [
+                    'name' => $service->name,
+                    'duration' => $service->duration_min,
+                    'stylists' => $service->stylists->map(fn (Stylist $stylist): array => ['id' => $stylist->id, 'name' => $stylist->name])->values(),
+                ]]),
+                'initial' => [
+                    'service' => old('service', $request->query('service')),
+                    'stylist' => old('stylist', $request->query('stylist')),
+                    'date' => old('date', $request->query('date')),
+                    'time' => old('time'),
+                ],
+                'firstDate' => $availability->firstBookableDate()->toDateString(),
+                'lastDate' => $availability->lastBookableDate()->toDateString(),
+                'weekdays' => collect(range(0, 6))->map(fn (int $day): string => $firstMonday->addDays($day)->isoFormat('dd')),
+                'weekdayNames' => collect(range(0, 6))->map(fn (int $day): string => $firstMonday->addDays($day)->isoFormat('dddd')),
+                'months' => collect(range(0, 11))->map(fn (int $month): string => $firstMonday->addMonths($month)->isoFormat('MMMM')),
+                'urls' => [
+                    'dates' => route('booking.dates'),
+                    'slots' => route('booking.slots'),
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Days in the requested month that have at least one free time.
+     */
+    public function dates(BookingAvailabilityRequest $request, AvailabilityService $availability): JsonResponse
+    {
+        $month = $request->selectedMonth();
+
+        return response()->json([
+            'dates' => $availability
+                ->availableDates($request->service(), $request->stylist(), $month->startOfMonth(), $month->endOfMonth())
+                ->map(fn (CarbonImmutable $date): string => $date->toDateString()),
+        ]);
+    }
+
+    /**
+     * Free start times ("H:i") on the requested date.
+     */
+    public function slots(BookingAvailabilityRequest $request, AvailabilityService $availability): JsonResponse
+    {
+        return response()->json([
+            'slots' => $availability
+                ->availableSlots($request->service(), $request->selectedDate(), $request->stylist())
+                ->keys(),
         ]);
     }
 
@@ -113,14 +130,5 @@ class BookingController extends Controller
         $booking->cancel(Booking::CANCELLED_BY_CUSTOMER);
 
         return redirect()->route('booking.show', $booking)->with('status', __('booking.manage.cancelled'));
-    }
-
-    private function parseDate(mixed $value): ?CarbonImmutable
-    {
-        if (! is_string($value) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-            return null;
-        }
-
-        return CarbonImmutable::createFromFormat('!Y-m-d', $value) ?: null;
     }
 }

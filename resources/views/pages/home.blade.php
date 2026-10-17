@@ -19,9 +19,9 @@
             </div>
 
             <div class="relative mx-auto w-full max-w-md">
-                <x-photo-frame shape="oval" alt="Ентериер на салонот" class="w-4/5" />
-                <x-photo-frame alt="Работа на салонот" class="absolute -right-2 bottom-8 w-2/5 sm:right-0" />
-                <x-photo-frame alt="Алатки за фризура" class="absolute right-8 -bottom-6 w-1/4 sm:right-24" />
+                <x-photo-frame image="home-salon" shape="oval" alt="Ентериер на салонот" placeholder="Фото: ентериер на салонот" class="w-4/5" />
+                <x-photo-frame image="home-work" alt="Работа на салонот" placeholder="Фото: фризура" class="absolute -right-2 bottom-8 w-2/5 sm:right-0" />
+                <x-photo-frame image="home-tools" alt="Алатки за фризура" placeholder="Фото: алатки" class="absolute right-8 -bottom-6 w-1/4 sm:right-24" />
             </div>
         </div>
     </section>
@@ -42,7 +42,7 @@
     {{-- About teaser --}}
     <section class="bg-marble-light text-marble-900">
         <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8">
-            <x-photo-frame alt="Нашиот тим" class="mx-auto w-full max-w-sm" />
+            <x-photo-frame image="home-team" alt="Нашиот тим" placeholder="Фото: тимот / Бобан" class="mx-auto w-full max-w-sm" />
             <div class="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
                 <x-section-title eyebrow="Добредојдовте" title="За нас" :dark="false" class="lg:items-start lg:text-left" />
                 <p class="leading-relaxed text-marble-700">

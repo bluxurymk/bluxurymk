@@ -9,17 +9,14 @@ use Illuminate\Database\Seeder;
 class StylistSeeder extends Seeder
 {
     /**
-     * Seed placeholder stylists who offer every service. Replace with the
-     * salon's real team once they confirm names and photos.
+     * Seed the salon's stylist, who offers every service.
      */
     public function run(): void
     {
         $serviceIds = Service::pluck('id');
 
-        foreach (['Стилист 1', 'Стилист 2'] as $name) {
-            Stylist::firstOrCreate(['name' => $name])
-                ->services()
-                ->sync($serviceIds);
-        }
+        Stylist::firstOrCreate(['name' => 'Бобан'])
+            ->services()
+            ->sync($serviceIds);
     }
 }

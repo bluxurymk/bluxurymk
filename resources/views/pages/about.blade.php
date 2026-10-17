@@ -2,7 +2,7 @@
     <x-page-header eyebrow="Добредојдовте" :title="__('site.nav.about')" />
 
     <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8">
-        <x-photo-frame shape="oval" alt="Ентериер на салонот" class="mx-auto w-full max-w-sm" />
+        <x-photo-frame image="about-salon" shape="oval" alt="Ентериер на салонот" placeholder="Фото: салонот однатре" class="mx-auto w-full max-w-sm" />
         <div class="flex flex-col gap-5 leading-relaxed text-beige/85">
             <p class="font-script text-3xl text-gold-300">{{ __('site.tagline') }}</p>
             <p>
@@ -43,7 +43,7 @@
             <ul class="mt-14 flex flex-wrap justify-center gap-x-10 gap-y-14">
                 @foreach ($stylists as $stylist)
                     <li class="flex w-64 flex-col items-center gap-4 text-center">
-                        <x-photo-frame :src="$stylist->photoUrl()" :alt="$stylist->name" class="w-48" />
+                        <x-photo-frame :src="$stylist->photoUrl()" :alt="$stylist->name" placeholder="Фото: {{ $stylist->name }}" class="w-48" />
                         <p class="font-serif text-2xl text-gold-300">{{ $stylist->name }}</p>
                         @if ($stylist->bio)
                             <p class="text-sm leading-relaxed text-beige/75">{{ $stylist->bio }}</p>

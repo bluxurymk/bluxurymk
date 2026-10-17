@@ -20,9 +20,9 @@
             <ul class="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
                 @foreach (range(1, 8) as $index)
                     <li @class(['md:row-span-2' => in_array($index, [2, 5])])>
-                        <div class="bg-marble flex size-full min-h-48 items-center justify-center rounded-sm border border-gold-500/25">
-                            <span class="text-gold-gradient font-serif text-5xl italic opacity-40" aria-hidden="true">B</span>
-                            <span class="sr-only">Фотографија наскоро</span>
+                        <div class="bg-marble flex size-full min-h-48 flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-gold-500/35">
+                            <x-icon name="camera" class="size-10 text-gold-400/60" />
+                            <span class="text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-gold-300/60">Фотографија наскоро</span>
                         </div>
                     </li>
                 @endforeach

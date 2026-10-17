@@ -2,7 +2,7 @@
     <x-page-header :eyebrow="$service->subtitle" :title="$service->name" />
 
     <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-5 lg:px-8">
-        <x-photo-frame shape="oval" :alt="$service->name" class="mx-auto w-full max-w-xs lg:col-span-2" />
+        <x-photo-frame :image="'service-'.$service->slug" shape="oval" :alt="$service->name" :placeholder="'Фото: '.$service->name" class="mx-auto w-full max-w-xs lg:col-span-2" />
 
         <div class="flex flex-col items-center gap-6 text-center lg:col-span-3 lg:items-start lg:text-left">
             <x-icon-circle :name="$service->icon" size="lg" />

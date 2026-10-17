@@ -55,38 +55,59 @@ function bookingPayload(Service $service, array $overrides = []): array
     ];
 }
 
-test('the wizard shows stylists, dates, times and finally the details form', function () {
+test('the booking page lists the services and the stylists who perform them', function () {
     [$service, $stylists] = bookableService(2);
 
     $this->get(route('booking.create', ['service' => $service->slug]))
         ->assertOk()
-        ->assertSee('Било кој')
-        ->assertSee($stylists[0]->name);
-
-    $this->get(route('booking.create', ['service' => $service->slug, 'stylist' => 'any']))
-        ->assertOk()
-        ->assertSee(route('booking.create', ['service' => $service->slug, 'stylist' => 'any', 'date' => '2026-10-20']));
-
-    $this->get(route('booking.create', ['service' => $service->slug, 'stylist' => 'any', 'date' => '2026-10-20']))
-        ->assertOk()
-        ->assertSee('09:00')
-        ->assertSee('16:00')
-        ->assertDontSee('16:30');
-
-    $this->get(route('booking.create', ['service' => $service->slug, 'stylist' => 'any', 'date' => '2026-10-20', 'time' => '10:00']))
-        ->assertOk()
+        ->assertSee($service->name)
+        ->assertSee($stylists[1]->name)
         ->assertSee('name="customer_name"', escape: false)
         ->assertSee('500 ден.');
 });
 
-test('the stylist step is skipped when only one stylist performs the service', function () {
+test('the free days of a month are listed', function () {
     [$service] = bookableService(1);
 
-    $this->get(route('booking.create', ['service' => $service->slug]))
+    $this->getJson(route('booking.dates', ['service' => $service->slug, 'month' => '2026-10']))
         ->assertOk()
-        ->assertDontSee('Било кој')
-        ->assertSee('Изберете датум');
+        ->assertExactJson(['dates' => ['2026-10-20', '2026-10-27']]);
 });
+
+test('the free times of a day are listed', function () {
+    [$service] = bookableService(1);
+
+    $slots = $this->getJson(route('booking.slots', ['service' => $service->slug, 'date' => '2026-10-20']))
+        ->assertOk()
+        ->json('slots');
+
+    expect($slots)->toContain('09:00', '16:00')->not->toContain('16:30');
+});
+
+test('the free times follow the chosen stylist', function () {
+    [$service, $stylists] = bookableService(2);
+    Booking::factory()->for($stylists[0])->for($service)->at('2026-10-20 10:00')->create();
+
+    $slotsFor = fn (?Stylist $stylist): array => $this->getJson(route('booking.slots', [
+        'service' => $service->slug,
+        'stylist' => $stylist?->id,
+        'date' => '2026-10-20',
+    ]))->json('slots');
+
+    expect($slotsFor($stylists[0]))->not->toContain('10:00')
+        ->and($slotsFor($stylists[1]))->toContain('10:00')
+        ->and($slotsFor(null))->toContain('10:00');
+});
+
+test('availability requests need a known service and a valid month or date', function (array $query) {
+    [$service] = bookableService(1);
+
+    $this->getJson(route('booking.slots', ['service' => $service->slug, ...$query]))->assertUnprocessable();
+})->with([
+    'unknown service' => [['service' => 'unknown', 'date' => '2026-10-20']],
+    'no month or date' => [[]],
+    'malformed date' => [['date' => '20.10.2026']],
+]);
 
 test('a valid booking is stored awaiting its deposit', function () {
     [$service, $stylists] = bookableService(1);
