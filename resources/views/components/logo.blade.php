@@ -1,8 +1,9 @@
-{{-- Salon logo, drawn after the flyer: a serif "B" crossed by a hair-strand swoosh, then LUXURY / HAIR SALON. Replace with the original file when the salon supplies it. --}}
+{{-- Salon logo, drawn after the flyer: a gold serif "B" cut by a sweep of hair strands, then LUXURY / HAIR SALON. Replace with the original file when the salon supplies it. --}}
 @props(['size' => 'sm'])
 
 @php
-    $gradientId = 'logo-gold-'.\Illuminate\Support\Str::random(6);
+    $id = 'logo-'.\Illuminate\Support\Str::random(6);
+    $swoosh = 'M4 124 C 40 120, 76 76, 116 8';
 @endphp
 
 <span {{ $attributes->class([
@@ -10,19 +11,28 @@
     'gap-3' => $size === 'sm',
     'flex-col gap-3' => $size === 'lg',
 ]) }}>
-    <svg viewBox="0 0 100 112" @class(['shrink-0 overflow-visible', 'h-12 w-auto' => $size === 'sm', 'h-36 w-auto sm:h-44' => $size === 'lg']) aria-hidden="true">
+    <svg viewBox="0 0 120 140" @class(['shrink-0 overflow-visible', 'h-12 w-auto' => $size === 'sm', 'h-40 w-auto sm:h-48' => $size === 'lg']) aria-hidden="true">
         <defs>
-            <linearGradient id="{{ $gradientId }}" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#e8cf95" />
-                <stop offset="0.35" stop-color="#c9a15b" />
-                <stop offset="0.6" stop-color="#f3e2b5" />
-                <stop offset="1" stop-color="#a67c3d" />
+            <linearGradient id="{{ $id }}-gold" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="80" y2="140">
+                <stop offset="0" stop-color="#f7e9c4" />
+                <stop offset="0.22" stop-color="#e2c27f" />
+                <stop offset="0.48" stop-color="#a67c3d" />
+                <stop offset="0.66" stop-color="#ecd296" />
+                <stop offset="0.85" stop-color="#c9a15b" />
+                <stop offset="1" stop-color="#7d5a2a" />
             </linearGradient>
+            {{-- Cuts a channel through the B where the hair strand passes. --}}
+            <mask id="{{ $id }}-cut" maskUnits="userSpaceOnUse" x="-10" y="-10" width="140" height="160">
+                <rect x="-10" y="-10" width="140" height="160" fill="#fff" />
+                <path d="{{ $swoosh }}" fill="none" stroke="#000" stroke-width="11" stroke-linecap="round" />
+            </mask>
         </defs>
-        <text x="52" y="96" text-anchor="middle" font-family="var(--font-cormorant), Georgia, serif" font-size="120" font-weight="600" fill="url(#{{ $gradientId }})">B</text>
-        {{-- Hair strand: a tapered sweep with a thin echo, outlined in the background colour so it reads on top of the B. --}}
-        <path d="M0 96 C 36 94, 64 56, 100 4 C 74 46, 44 84, 0 96 Z" fill="url(#{{ $gradientId }})" stroke="#0e0c0a" stroke-width="2.5" paint-order="stroke" />
-        <path d="M8 106 C 46 102, 74 66, 98 26" fill="none" stroke="url(#{{ $gradientId }})" stroke-width="1.4" stroke-linecap="round" />
+        <text x="62" y="114" text-anchor="middle" font-family="var(--font-cormorant), Georgia, serif" font-size="150" font-weight="700" fill="url(#{{ $id }}-gold)" mask="url(#{{ $id }}-cut)">B</text>
+        {{-- Three tapered hair strands sweeping up through the B, with a sparkle at the tip. --}}
+        <path d="{{ $swoosh }} C 80 58, 42 104, 4 124 Z" fill="url(#{{ $id }}-gold)" />
+        <path d="M16 132 C 52 126, 86 84, 112 34 C 88 74, 56 112, 16 132 Z" fill="url(#{{ $id }}-gold)" opacity="0.9" />
+        <path d="M-2 114 C 28 108, 56 74, 88 30 C 62 66, 38 98, -2 114 Z" fill="url(#{{ $id }}-gold)" opacity="0.75" />
+        <path d="M116 0 Q117.2 6.8 124 8 Q117.2 9.2 116 16 Q114.8 9.2 108 8 Q114.8 6.8 116 0 Z" fill="#f7e9c4" />
     </svg>
 
     <span @class(['flex flex-col', 'items-center gap-2.5' => $size === 'lg', 'gap-1.5' => $size === 'sm'])>

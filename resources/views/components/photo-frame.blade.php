@@ -1,9 +1,9 @@
-{{-- Circular/oval gold frame. Pass `src`, or an `image` name to pick up public/images/site/{name}.webp|jpg|jpeg|png once the salon's photo is added; until then a labelled placeholder shows. --}}
+{{-- Circular/oval gold frame. Pass `src`, or an `image` name: it shows public/images/site/{name}.webp|jpg|jpeg|png when the salon's photo is added, otherwise the generated {name}.svg illustration, otherwise a labelled placeholder. --}}
 @props(['src' => null, 'image' => null, 'alt' => '', 'shape' => 'circle', 'placeholder' => null])
 
 @php
     if ($src === null && $image !== null) {
-        $file = collect(['webp', 'jpg', 'jpeg', 'png'])
+        $file = collect(['webp', 'jpg', 'jpeg', 'png', 'svg'])
             ->map(fn (string $extension): string => "images/site/{$image}.{$extension}")
             ->first(fn (string $path): bool => is_file(public_path($path)));
         $src = $file ? asset($file) : null;
